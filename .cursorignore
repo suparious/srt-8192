@@ -1,0 +1,23 @@
+# Ignore all data
+**/data/
+.env
+.json
+**/.obsidian/
+.vscode/
+.idea/
+scratch-space/
+.git/
+
+# Ignore all __pycache__ folders
+**/__pycache__/
+**/node_modules/
+**/dist/
+**/coverage/
+**/build/
+
+# Ignore all .DS_Store files
+.DS_Store
+
+# Ignore prompt templates
+output.txt
+WORKFLOW.md

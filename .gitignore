@@ -1,32 +1,19 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+codebase.md
+.DS_Store
+**/.idea/
+**/.vscode/
+**/data/
+**/build/
+**/__pycache__/
+**/node_modules/
+.env
+*.log
+.DS_Store
+**/dist/
+**/coverage/
+scratch-space/
+output.txt
+# Ignore contents of public folder except specific files
+/public/*
+!/public/CNAME
+!/public/assets
