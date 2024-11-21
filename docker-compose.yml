@@ -1,60 +1,92 @@
 version: '3.9'
 
 services:
-  backend:
-    build: ./backend
-    container_name: 8192_backend
-    ports:
-      - "5000:5000" # Expose backend API on port 5000
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mongodb://db:27017/8192_game
-    volumes:
-      - ./backend:/app
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  game-logic:
+    build: ./services/game-logic-service
+    ports: ["5001:5001"]
+    env_file: ./services/game-logic-service/.env
+    depends_on: [mongodb, redis]
 
-  frontend:
-    build: ./frontend
-    container_name: 8192_frontend
-    ports:
-      - "3000:80"
-    environment:
-      - NODE_ENV=development
-      - REACT_APP_BACKEND_URL=http://backend:5000
-    volumes:
-      - ./frontend:/app
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  ai-service:
+    build: ./services/ai-service
+    ports: ["5002:5002"]
+    env_file: ./services/ai-service/.env
+    depends_on: [mongodb]
 
-  db:
+  data-integration:
+    build: ./services/data-integration
+    ports: ["5003:5003"]
+    env_file: ./services/data-integration/.env
+    depends_on: [mongodb]
+
+  economy:
+    build: ./services/economy-management
+    ports: ["5004:5004"]
+    env_file: ./services/economy-management/.env
+    depends_on: [mongodb]
+
+  leaderboard:
+    build: ./services/leaderboard-service
+    ports: ["5005:5005"]
+    env_file: ./services/leaderboard-service/.env
+    depends_on: [mongodb]
+
+  matchmaking:
+    build: ./services/matchmaking-service
+    ports: ["5006:5006"]
+    env_file: ./services/matchmaking-service/.env
+    depends_on: [redis]
+
+  notifications:
+    build: ./services/notification-service
+    ports: ["5007:5007"]
+    env_file: ./services/notification-service/.env
+    depends_on: [redis]
+
+  persistence:
+    build: ./services/persistence-service
+    ports: ["5008:5008"]
+    env_file: ./services/persistence-service/.env
+    depends_on: [mongodb]
+
+  rewards:
+    build: ./services/rewards-service
+    ports: ["5009:5009"]
+    env_file: ./services/rewards-service/.env
+    depends_on: [mongodb]
+
+  social:
+    build: ./services/social-service
+    ports: ["5010:5010"]
+    env_file: ./services/social-service/.env
+    depends_on: [mongodb, redis]
+
+  tutorial:
+    build: ./services/tutorial-service
+    ports: ["5011:5011"]
+    env_file: ./services/tutorial-service/.env
+    depends_on: [mongodb]
+
+  user:
+    build: ./services/user-service
+    ports: ["5012:5012"]
+    env_file: ./services/user-service/.env
+    depends_on: [mongodb]
+
+  mongodb:
     image: mongo:latest
-    container_name: 8192_db
-    ports:
-      - "27017:27017" # Expose MongoDB on the default port
-    volumes:
-      - db_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    ports: ["27017:27017"]
+    volumes: [mongodb_data:/data/db]
+
+  redis:
+    image: redis:alpine
+    ports: ["6379:6379"]
+    volumes: [redis_data:/data]
 
 volumes:
-  db_data:
+  mongodb_data:
+  redis_data:
 
 networks:
   default:
-    driver: bridge
+    name: srt-8192-network
