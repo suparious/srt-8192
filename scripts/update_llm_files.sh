@@ -10,36 +10,12 @@ data_folder="data"
 public_folder="public"
 input_folders=(
     "docs"
-    "docs-simplified"
-    "public"
-    "src"
-    "src/backend"
-    "src/data-services"
-    "src/frontends"
-    "src/scripts"
-    "src/services"
-    "src/shared"
 )
 docs_folders=(
     "docs/"
 )
 app_folders=(
-    "src/frontends/website"
-    "src/frontends/dashboard"
-    "src/frontends/game-client"
-    "src/scripts/kafka-topic-creator"
-    "src/services/ai-decision-engine"
-    "src/services/analytics"
-    "src/services/blockchain-economy"
-    "src/services/data-integration/nyt-article-search-api"
-    "src/services/event-processing"
-    "src/services/game-logic"
-    "src/services/game-state"
-    "src/services/http3-gateway"
-    "src/services/scenario-generator"
-    "src/services/scenario-integrator"
-    "src/services/user-management"
-    "src/services/websockets"
+    "scripts"
 )
 
 ## Configure ignore mask and extensions
