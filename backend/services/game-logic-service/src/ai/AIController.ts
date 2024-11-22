@@ -449,3 +449,11 @@ export class AIController extends EventEmitter {
         }
     }
 }
+
+export class GlobalStrategyLearning {
+    private globalPlayerStrategies: Map<string, PlayerStrategy>;
+
+    public learnFromGlobalBehavior(gameState: GameState): void {
+        // Implement global strategy learning
+    }
+}

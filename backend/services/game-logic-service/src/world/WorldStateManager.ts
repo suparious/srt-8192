@@ -11,7 +11,7 @@ import {
   GameEvent,
   GameEventType,
   EventVisibility
-} from '../types';
+} from '../../../../shared/types';
 
 import { ClimateSystem, ClimateEffect } from '../../../data-integration/src/ClimateSystem';
 

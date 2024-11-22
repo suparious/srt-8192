@@ -1,4 +1,4 @@
-import { GameState, PlayerId, Resources } from '../types';
+import { GameState, PlayerId, Resources } from '../../../../shared/types';
 
 export interface VictoryThresholds {
   economicDominance: number;    // Percentage of total resources (0.6 = 60%)

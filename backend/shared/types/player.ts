@@ -1,5 +1,5 @@
-import { PlayerId, GameSessionId } from './game';
-import { PlayStyle } from './game';  // Assuming we move this enum here
+import { PlayerId, GameSessionId } from '../../../../shared/types/game';
+import { PlayStyle } from '../../../../shared/types/game';  // Assuming we move this enum here
 
 export interface PlayerMetrics {
     averageActionsPerPhase: number;

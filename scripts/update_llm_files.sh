@@ -11,9 +11,10 @@ public_folder="public"
 input_folders=(
     "frontend"
     "backend"
+    "docs"
 )
 docs_folders=(
-    "docs/"
+    "docs"
 )
 app_folders=(
     "frontend"
@@ -82,6 +83,8 @@ extensions=(
     .sh
     CNAME
     .env-example
+    .env.example
+    .env.example-old
     PROJECT.md
     README.md
     CONTRIBUTING.md

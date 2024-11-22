@@ -1,5 +1,5 @@
-import { WeatherCondition, RegionId, PlayerId, ActionType } from './game';
-import { Resources } from './resources';
+import { WeatherCondition, RegionId, PlayerId, ActionType } from '../../../../shared/types/game';
+import { Resources } from '../../../../shared/types/resources';
 
 export interface WorldState {
     stability: number;

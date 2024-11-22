@@ -77,7 +77,7 @@ export class ProgressionSystem extends EventEmitter {
   public initializePlayer(playerId: PlayerId): void {
     if (!this.playerProgress.has(playerId)) {
       const initialProgress: Record<LeadershipSkill, SkillProgression> = {} as Record<LeadershipSkill, SkillProgression>;
-      
+
       Object.values(LeadershipSkill).forEach(skill => {
         initialProgress[skill] = {
           level: 1,
@@ -120,7 +120,7 @@ export class ProgressionSystem extends EventEmitter {
   ): void {
     const baseXP = this.config.baseExperience.resource;
     const totalResources = Object.values(resources).reduce((sum, value) => sum + value, 0);
-    
+
     let experienceGained = baseXP * (totalResources / 1000) * efficiency;
     this.awardExperience(playerId, LeadershipSkill.ECONOMICS, experienceGained);
   }
@@ -135,7 +135,7 @@ export class ProgressionSystem extends EventEmitter {
   ): void {
     const baseXP = this.config.baseExperience.diplomatic;
     let experienceGained = baseXP * importance;
-    
+
     if (success) {
       experienceGained *= 1.5;
     }
@@ -153,7 +153,7 @@ export class ProgressionSystem extends EventEmitter {
   ): void {
     const baseXP = this.config.baseExperience.research;
     const experienceGained = baseXP * techLevel * completion;
-    
+
     this.awardExperience(playerId, LeadershipSkill.RESEARCH, experienceGained);
   }
 
@@ -250,4 +250,17 @@ export class ProgressionSystem extends EventEmitter {
     this.playerProgress.delete(playerId);
     this.initializePlayer(playerId);
   }
+}
+
+export interface LeadershipMetrics {
+  strategicDecisions: {
+    successfulPlannings: number;
+    failedStrategies: number;
+    adaptationRate: number;
+  };
+  resourceManagement: {
+    allocationEfficiency: number;
+    wasteRate: number;
+    optimizationScore: number;
+  };
 }

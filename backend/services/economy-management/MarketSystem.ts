@@ -15,6 +15,8 @@ export class MarketSystem extends EventEmitter {
   private marketState: MarketState;
   private priceHistory: Map<ResourceType, PriceHistory[]>;
   private activeOffers: Map<string, TradeOffer>;
+  private priceFluctuations: Map<ResourceType, number>;
+  private tradeHistory: TradeTransaction[];
   private readonly volatilityFactor: number = 0.1;
   private readonly maxPriceHistory: number = 100;
   private readonly baselinePrices: Record<ResourceType, number> = {
@@ -110,7 +112,7 @@ export class MarketSystem extends EventEmitter {
 
     // Update market state
     this.updateMarketState(transaction);
-    
+
     // Update offer status
     offer.status = 'completed';
     this.activeOffers.delete(offerId);
@@ -181,6 +183,10 @@ export class MarketSystem extends EventEmitter {
     return modifier;
   }
 
+  public calculateMarketPrices(): Record<ResourceType, number> {
+    // Implement dynamic pricing based on supply/demand
+  }
+
   /**
    * Calculate price modifier based on trading volume
    */
@@ -228,7 +234,7 @@ export class MarketSystem extends EventEmitter {
     // Update volatility based on trading activity
     Object.keys(transaction.offer).forEach(resource => {
       const currentVolatility = this.marketState.volatility[resource as ResourceType];
-      this.marketState.volatility[resource as ResourceType] = 
+      this.marketState.volatility[resource as ResourceType] =
         Math.min(0.5, currentVolatility * (1 + this.volatilityFactor));
     });
 

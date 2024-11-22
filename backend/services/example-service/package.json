@@ -1,0 +1,20 @@
+{
+    "name": "@srt-8192/example-service",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+      "build": "tsc",
+      "start": "node dist/index.js",
+      "dev": "ts-node-dev --respawn src/index.ts",
+      "test": "jest",
+      "lint": "eslint src --ext .ts"
+    },
+    "dependencies": {
+      "@srt-8192/service-base": "1.0.0",
+      "@srt-8192/game-core": "1.0.0"
+    },
+    "devDependencies": {
+      "ts-node-dev": "^2.0.0",
+      "typescript": "^5.3.3"
+    }
+  }
