@@ -1,0 +1,107 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    build: ./backend/services/api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    depends_on:
+      - game-logic
+      - ai-service
+      - data-integration
+      - economy
+      - leaderboard
+      - matchmaking
+      - notifications
+      - persistence
+      - rewards
+      - social
+      - tutorial
+      - user
+
+  # Include all backend services
+  game-logic:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: game-logic
+
+  ai-service:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: ai-service
+
+  data-integration:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: data-integration
+
+  economy:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: economy
+
+  leaderboard:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: leaderboard
+
+  matchmaking:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: matchmaking
+
+  notifications:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: notifications
+
+  persistence:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: persistence
+
+  rewards:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: rewards
+
+  social:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: social
+
+  tutorial:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: tutorial
+
+  user:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: user
+
+  mongodb:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: mongodb
+
+  redis:
+    extends:
+      file: ./backend/docker-compose.yml
+      service: redis
+
+networks:
+  srt-8192-network:
+    name: srt-8192-network

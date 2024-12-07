@@ -1,169 +1,117 @@
-# 8192: A Turn-Based Leadership Simulator
+# 8192: Turn-Based Leadership Simulator
 
-## Overview
+A sophisticated turn-based leadership simulator focused on teaching strategic thinking, resource management, and decision-making skills through engaging gameplay.
 
-**8192** is a revolutionary turn-based online multiplayer game that teaches players leadership skills, military and economic management, while competing in a future Earth-type setting where an advanced AI attempts to exterminate humanity. The turn-based gameplay resets every 8192 cycles, allowing new players to join in and helping maintain balance while rewarding long-term players with permanent in-game rewards, including coins, experience, profile badges, and rare skins.
-
-**8192** is part of a larger simulation game called **LeadSim**, which itself is part of the expansive virtual world known as **Future Earth**, developed and operated by **SolidRusT Networks (SRT)**.
-
-## Core Features
-
-### Gameplay
-- **Turn-Based Strategy**: Experience deep strategic gameplay with 8192-cycle game sessions
-- **Leadership Development**: Learn and apply real-world leadership skills
-- **AI Integration**: Face an adaptive AI opponent that learns from global player behavior
-- **Real-World Data**: Game mechanics influenced by real-world economic and geopolitical data
-- **Permanent Progress**: Keep your rewards and advancement across game cycles
-
-### Technical Features
-- **Progressive Web App**: Cross-platform accessibility
-- **Real-time Updates**: WebSocket-based live game state synchronization
-- **AI Learning**: Continuous opponent adaptation through reinforcement learning
-- **Data Integration**: Real-world economic and environmental data influence gameplay
-
-## Technology Stack
-
-### Frontend (PlayerPortal)
-- React 18+ with TypeScript
-- Tailwind CSS for styling
-- Recoil for state management
-- Real-time updates via WebSocket
-- Progressive Web App capabilities
-
-### Backend (BrainCore)
-- Event-driven microservices architecture
-- Advanced AI opponent system (NexusMind)
-- Real-world data integration (DataForge)
-- Combat resolution engine
-- Resource management system
-
-### Infrastructure
-- Kubernetes deployment (ClusterCommander)
-- Multi-region cloud architecture
-- Event sourcing for game state
-- Real-time analytics and monitoring
-
-## Documentation
-
-### Game Design
-- [Game Design Bible](docs/Game_Design_Bible.md) - Complete game mechanics and systems
-- [Balance Guide](docs/Game_Balance_Guide.md) - Resource and combat balancing
-- [Turn System](docs/TurnSystem_Explanation.md) - Turn mechanics and flow
-
-### Technical Documentation
-- [AI Strategy](docs/AI_Strategy_and_Behavior.md) - NexusMind AI system design
-- [AI Behavior Examples](docs/AI_Behavior_Examples.md) - Practical AI implementation examples
-- [Infrastructure Architecture](docs/Infrastructure_Architecture.md) - System architecture
-- [Performance Scaling](docs/Performance_Scaling.md) - Scaling strategies
-- [Educational Framework](docs/Educational_Framework.md) - Leadership development implementation
-
-### Development Guides
-- [Technical Design Document](docs/Technical_Design_Document.md) - Technical specifications
-- [Contributing Guidelines](CONTRIBUTING.md) - Development workflow
-- [Security Policy](SECURITY.md) - Security practices
-- [Testing Guide](TESTING.md) - Testing procedures
-
-## Project Structure
-```
-8192/
-├── backend/
-│   ├── ai/                 # AI opponent logic & ML models
-│   ├── data-integration/   # Real-world data processing
-│   ├── game-logic/         # Core game mechanics
-│   └── services/           # Microservices
-├── frontend/
-│   ├── components/         # React components
-│   ├── pages/             # Next.js pages
-│   ├── styles/            # Global styles
-│   └── types/             # TypeScript definitions
-├── docs/                  # Documentation
-└── scripts/              # Deployment scripts
-```
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-```bash
-Node.js >= 18
-Docker & Docker Compose
-Kubernetes (for full deployment)
-```
+- Docker and Docker Compose
+- Node.js 18+ (for local development)
+- npm or yarn
 
-### Installation
+### Development Setup
+
+1. Clone the repository:
 ```bash
-git clone https://github.com/SolidRusT/srt-8192.git
+git clone https://github.com/your-org/srt-8192.git
 cd srt-8192
-npm install
 ```
 
-### Development
+2. Generate environment files:
 ```bash
-# Start frontend development server
-npm run dev
+cd backend
+npm run generate:env
+cd ..
+```
 
-# Start backend services
+3. Start the development environment:
+```bash
+# Start all services (frontend + backend)
 docker-compose up
+
+# Or start with development configurations
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 ```
 
-### Testing
-```bash
-# Launch test environment
-docker-compose -p srt-8192-dev up -d
+4. Access the application:
+- Frontend: http://localhost:3000
+- API Gateway: http://localhost:5000
+- Service Health Checks: http://localhost:[5001-5012]/health
 
-# Run backend tests
-docker exec -it srt-8192-dev_game-logic_1 npm test
+### Service Ports
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Frontend | 3000 | React application |
+| API Gateway | 5000 | API Gateway |
+| Game Logic | 5001 | Core game mechanics |
+| AI Service | 5002 | NexusMind AI system |
+| Data Integration | 5003 | DataForge system |
+| Economy | 5004 | Economic simulation |
+| Leaderboard | 5005 | Player rankings |
+| Matchmaking | 5006 | Player matching |
+| Notifications | 5007 | Event notifications |
+| Persistence | 5008 | Game state management |
+| Rewards | 5009 | Player rewards |
+| Social | 5010 | Player interactions |
+| Tutorial | 5011 | Learning system |
+| User | 5012 | User management |
+
+### Development Commands
+
+```bash
+# Start development environment
+docker-compose up
+
+# Rebuild services
+docker-compose build
+
+# Run tests
+npm test
+
+# Run linting
+npm run lint
+
+# Generate environment files
+npm run generate:env
+```
+
+## 🏗️ Architecture
+
+8192 uses a microservices architecture with:
+- React frontend with TypeScript
+- Node.js microservices for backend
+- MongoDB for persistent storage
+- Redis for caching and real-time features
+- Docker for containerization
+- API Gateway for service coordination
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run specific service tests
+cd backend/services/[service-name]
+npm test
 
 # Run frontend tests
-docker exec -it srt-8192-dev_frontend_1 npm test
+cd frontend
+npm test
 ```
 
-### Production Deployment
-```bash
-# Build frontend
-npm run build
+## 📚 Documentation
 
-# Deploy to Kubernetes
-./scripts/deploy.sh
-```
+- [Game Design Documentation](./docs/game-design.md)
+- [API Documentation](./docs/api.md)
+- [Development Guide](./docs/development.md)
+- [Deployment Guide](./docs/deployment.md)
 
-## Key Components
+## 🤝 Contributing
 
-### BrainCore (Backend)
-- **NexusMind**: Advanced AI opponent system using reinforcement learning
-- **DataForge**: Real-world data integration pipeline
-- **Combat Engine**: Sophisticated battle resolution system
-- **Resource Manager**: Economic and resource distribution system
+Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-### PlayerPortal (Frontend)
-- **GameBoard**: Main game interface component
-- **ActionPanel**: Player control and command interface
-- **ResourceDisplay**: Resource management UI
-- **UnitManager**: Military unit control interface
+## 📜 License
 
-## Contributing
-
-Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests. Join our [Discord server](https://discord.gg/UMWQmCz7uF) for discussions and updates.
-
-## Support
-
-- Documentation: [docs/](./docs/)
-- Discord: [Join Server](https://discord.gg/UMWQmCz7uF)
-- Email: support@solidrust.net
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
-
-## Security
-
-For security concerns, please review our [Security Policy](SECURITY.md).
-
-## Acknowledgments
-
-- The SolidRusT Networks team
-- Our active community of playtesters
-- All contributors to the LeadSim project
-
----
-
-Built with 💙 by SolidRusT Networks
+This project is licensed under the terms of the license found in [LICENSE.md](LICENSE.md).

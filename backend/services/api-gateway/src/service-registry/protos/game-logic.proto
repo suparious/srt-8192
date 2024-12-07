@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package game_logic;
+
+service GameLogicService {
+  rpc ProcessAction (Action) returns (ActionResult);
+  rpc GetGameState (GameStateRequest) returns (GameState);
+  rpc GetActivePlayers (GamePlayersRequest) returns (ActivePlayers);
+  rpc ProcessActions (BatchActions) returns (BatchResults);
+  rpc Check (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+message Action {
+  string action_id = 1;
+  string game_id = 2;
+  string player_id = 3;
+  string action_type = 4;
+  bytes payload = 5;
+  string region = 6;
+  int64 timestamp = 7;
+}
+
+message ActionResult {
+  bool success = 1;
+  string message = 2;
+  bytes result_data = 3;
+}
+
+message GameStateRequest {
+  string game_id = 1;
+}
+
+message GameState {
+  string game_id = 1;
+  int32 current_cycle = 2;
+  bytes state_data = 3;
+  repeated PlayerState players = 4;
+  map<string, ResourceState> resources = 5;
+}
+
+message PlayerState {
+  string player_id = 1;
+  string status = 2;
+  map<string, double> resources = 3;
+  repeated UnitState units = 4;
+}
+
+message UnitState {
+  string unit_id = 1;
+  string type = 2;
+  string location = 3;
+  double health = 4;
+}
+
+message ResourceState {
+  string type = 1;
+  double amount = 2;
+  string location = 3;
+}
+
+message GamePlayersRequest {
+  string game_id = 1;
+}
+
+message ActivePlayers {
+  repeated PlayerState players = 1;
+}
+
+message BatchActions {
+  repeated Action actions = 1;
+}
+
+message BatchResults {
+  repeated ActionResult results = 1;
+}
+
+message HealthCheckRequest {
+}
+
+message HealthCheckResponse {
+  string status = 1;
+}

@@ -1,5 +1,5 @@
 {
-    "name": "@srt-8192/service-base",
+    "name": "@srt-8192/base-service",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -30,4 +30,4 @@
       "ts-node-dev": "^2.0.0",
       "typescript": "^5.3.3"
     }
-  }
+}
