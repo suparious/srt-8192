@@ -1,0 +1,20 @@
+{
+  "name": "srt-8192",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "generate:env": "node scripts/generate-all-env.js",
+    "generate:env:backend": "cd backend && node scripts/generate-env.js",
+    "generate:env:frontend": "cd frontend && node scripts/generate-env.js",
+    "dev": "npm run generate:env && docker-compose up --build",
+    "build": "npm run generate:env && docker-compose build",
+    "start": "docker-compose up",
+    "down": "docker-compose down",
+    "clean": "docker-compose down -v",
+    "logs": "docker-compose logs -f",
+    "test": "cd backend && npm test && cd ../frontend && npm test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,31 +1,53 @@
-# Use an official Node.js runtime as a parent image for building the app
+# Build stage
 FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json for dependency installation
+# Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy the rest of the application
+# Copy source files
 COPY . .
+
+# Generate environment file based on build arg
+ARG NODE_ENV=production
+RUN node scripts/generate-env.js
 
 # Build the application
 RUN npm run build
 
-# ---
+# Production stage
+FROM node:18-alpine
 
-# Use a lighter runtime image for serving the build output
-FROM nginx:alpine
+WORKDIR /app
 
-# Copy build output to the nginx container
-COPY --from=builder /app/build /usr/share/nginx/html
+# Copy package files
+COPY package*.json ./
 
-# Expose the frontend port
-EXPOSE 80
+# Install production dependencies only
+RUN npm ci --production
 
-# Run nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Copy built assets from builder stage
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+# Copy required root files
+COPY --from=builder /app/next.config.js ./
+
+# Add tini for proper signal handling
+RUN apk add --no-cache tini
+
+# Default environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Expose the application port
+EXPOSE 3000
+
+# Run the application with tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["npm", "start"]
