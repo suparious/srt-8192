@@ -42,8 +42,10 @@ COPY --from=builder /app/dist ./dist
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Create non-root user and set permissions
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app
+
 USER appuser
 
 # Environment variables
@@ -52,7 +54,7 @@ ENV NODE_ENV=production \
 
 # Health check with fixed intervals - can be overridden by individual services
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
 EXPOSE ${PORT}
 
