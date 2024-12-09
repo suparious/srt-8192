@@ -1,15 +1,34 @@
+version: '3.8'
+
+x-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+
 services:
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        - NODE_ENV=development
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_healthy
     networks:
       - srt-8192-network
+    <<: *default-logging
 
   api-gateway:
     build: ./backend/services/api-gateway
@@ -17,21 +36,48 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
+      - NODE_ENV=development
+    volumes:
+      - ./backend/services/api-gateway:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      - game-logic
-      - ai-service
-      - data-integration
-      - economy
-      - leaderboard
-      - matchmaking
-      - notifications
-      - persistence
-      - rewards
-      - social
-      - tutorial
-      - user
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      game-logic:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+      data-integration:
+        condition: service_healthy
+      economy:
+        condition: service_healthy
+      leaderboard:
+        condition: service_healthy
+      matchmaking:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy
+      persistence:
+        condition: service_healthy
+      rewards:
+        condition: service_healthy
+      social:
+        condition: service_healthy
+      tutorial:
+        condition: service_healthy
+      user:
+        condition: service_healthy
     networks:
       - srt-8192-network
+    <<: *default-logging
 
   # Include all backend services
   game-logic:
@@ -107,6 +153,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    <<: *default-logging
 
   redis:
     image: redis:alpine
@@ -121,11 +168,51 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    <<: *default-logging
+
+  # Development Tools
+  mongo-express:
+    image: mongo-express
+    ports: ["8081:8081"]
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - srt-8192-network
+    <<: *default-logging
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus
+    ports: ["9090:9090"]
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - srt-8192-network
+    <<: *default-logging
+
+  grafana:
+    image: grafana/grafana
+    ports: ["3001:3000"]
+    volumes:
+      - ./config/grafana:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - srt-8192-network
+    <<: *default-logging
 
 volumes:
   mongodb_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   srt-8192-network:
-    name: srt-8192-network
+    driver: bridge

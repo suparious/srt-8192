@@ -1,5 +1,22 @@
 const fs = require('fs').promises;
 const path = require('path');
+const PORTS = require('../../config/ports.json');
+
+const SERVICE_DIRS = {
+    'game-logic': 'game-logic-service',
+    'ai-service': 'ai-service',
+    'data-integration': 'data-integration',
+    'economy': 'economy-management',
+    'leaderboard': 'leaderboard-service',
+    'matchmaking': 'matchmaking-service',
+    'notifications': 'notification-service',
+    'persistence': 'persistence-service',
+    'rewards': 'rewards-service',
+    'social': 'social-service',
+    'tutorial': 'tutorial-service',
+    'user': 'user-service',
+    'api-gateway': 'api-gateway'
+};
 
 async function generateEnvFiles() {
     const servicesDir = path.join(__dirname, '..', 'services');
@@ -19,66 +36,43 @@ SERVICE_NAME=base-service
 ENABLE_DEBUGGING=true`;
         });
 
-        // Get all service directories
-        const services = await fs.readdir(servicesDir);
+        // Process each service from our config
+        for (const [serviceName, serviceDir] of Object.entries(SERVICE_DIRS)) {
+            const fullServicePath = path.join(servicesDir, serviceDir);
+            
+            // Ensure service directory exists
+            await fs.mkdir(fullServicePath, { recursive: true });
 
-        for (const service of services) {
-            if (service === 'base') continue;
+            // Get port from our config
+            const port = PORTS[serviceName] || 3000;
 
-            const serviceDir = path.join(servicesDir, service);
-            const stat = await fs.stat(serviceDir);
-
-            if (!stat.isDirectory()) continue;
-
-            // Create .env file
-            const envPath = path.join(serviceDir, '.env');
+            // Create .env content
             let envContent = baseEnv
-                .replace('PORT=3000', `PORT=${getServicePort(service)}`)
-                .replace('SERVICE_NAME=base-service', `SERVICE_NAME=${service}`);
+                .replace('PORT=3000', `PORT=${port}`)
+                .replace('SERVICE_NAME=base-service', `SERVICE_NAME=${serviceName}`);
 
-            // Create development env
-            const devEnvPath = path.join(serviceDir, '.env.development');
-            // Create production env
-            const prodEnvPath = path.join(serviceDir, '.env.production');
-            let prodEnv = envContent
-                .replace('NODE_ENV=development', 'NODE_ENV=production')
-                .replace('ENABLE_DEBUGGING=true', 'ENABLE_DEBUGGING=false');
+            // Create different env files
+            const files = {
+                '.env': envContent,
+                '.env.development': envContent,
+                '.env.production': envContent
+                    .replace('NODE_ENV=development', 'NODE_ENV=production')
+                    .replace('ENABLE_DEBUGGING=true', 'ENABLE_DEBUGGING=false'),
+                '.env.example': baseEnv
+            };
 
-            // Create .env.example
-            const exampleEnvPath = path.join(serviceDir, '.env.example');
+            // Write all env files
+            for (const [filename, content] of Object.entries(files)) {
+                const filePath = path.join(fullServicePath, filename);
+                await fs.writeFile(filePath, content);
+            }
 
-            // Write files
-            await fs.writeFile(envPath, envContent);
-            await fs.writeFile(devEnvPath, envContent);
-            await fs.writeFile(prodEnvPath, prodEnv);
-            await fs.writeFile(exampleEnvPath, baseEnv);
-
-            console.log(`Generated environment files for ${service}`);
+            console.log(`Generated environment files for ${serviceName}`);
         }
     } catch (error) {
         console.error('Error generating environment files:', error);
         process.exit(1);
     }
-}
-
-function getServicePort(service) {
-    const portMap = {
-        'game-logic-service': 5001,
-        'ai-service': 5002,
-        'data-integration': 5003,
-        'economy-management': 5004,
-        'leaderboard-service': 5005,
-        'matchmaking-service': 5006,
-        'notification-service': 5007,
-        'persistence-service': 5008,
-        'rewards-service': 5009,
-        'social-service': 5010,
-        'tutorial-service': 5011,
-        'user-service': 5012,
-        'api-gateway': 5000
-    };
-
-    return portMap[service] || 3000;
 }
 
 generateEnvFiles().catch(console.error);

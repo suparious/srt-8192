@@ -1,19 +1,11 @@
-FROM node:20-alpine AS builder
+# Extend from base service image
+FROM srt-8192/base-service:latest
 
-WORKDIR /app
-COPY package*.json ./
-COPY tsconfig.json ./
-RUN npm install
+# Service-specific environment variables
+ENV SERVICE_NAME=api-gateway \
+    PORT=5002
 
+# Copy service-specific files
 COPY . .
-RUN npm run build
 
-FROM node:20-alpine
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 5000
-CMD ["npm", "run", "start:prod"]
+# Build and run are handled by base image

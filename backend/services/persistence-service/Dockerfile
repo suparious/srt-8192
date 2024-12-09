@@ -2,8 +2,8 @@
 FROM srt-8192/base-service:latest
 
 # Service-specific environment variables
-ENV SERVICE_NAME=game-logic \
-    PORT=5005
+ENV SERVICE_NAME=persistence \
+    PORT=5009
 
 # Copy service-specific files
 COPY . .

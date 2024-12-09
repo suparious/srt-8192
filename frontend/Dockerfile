@@ -28,15 +28,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --production
+# Install serve to run the production build
+RUN npm install -g serve
 
 # Copy built assets from builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-
-# Copy required root files
-COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/build ./build
 
 # Add tini and curl for proper signal handling and health checks
 RUN apk add --no-cache tini curl
@@ -50,8 +46,8 @@ EXPOSE 3000
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:3000/api/health || exit 1
+    CMD curl -f http://localhost:3000/health || exit 1
 
 # Run the application with tini for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["npm", "start"]
+CMD ["serve", "-s", "build", "-l", "3000"]

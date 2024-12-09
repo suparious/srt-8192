@@ -1,0 +1,16 @@
+{
+  "frontend": 3000,
+  "api-gateway": 5000,
+  "game-logic": 5001,
+  "ai-service": 5002,
+  "data-integration": 5003,
+  "economy": 5004,
+  "leaderboard": 5005,
+  "matchmaking": 5006,
+  "notifications": 5007,
+  "persistence": 5008,
+  "rewards": 5009,
+  "social": 5010,
+  "tutorial": 5011,
+  "user": 5012
+}
