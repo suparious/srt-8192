@@ -1,7 +1,8 @@
 import { BaseService } from './BaseService';
-import { ServiceConfig } from './types/config';
 
-export { BaseService, ServiceConfig };
-export * from './types/health';
-export * from './utils/logger';
-export * from './utils/environment';
+// Create and start the base service
+const service = new BaseService();
+service.start().catch(error => {
+  console.error('Failed to start service:', error);
+  process.exit(1);
+});

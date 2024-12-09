@@ -1,153 +1,66 @@
-# 8192: Turn-Based Leadership Simulator
+# 8192 Game Development
 
-A sophisticated turn-based leadership simulator focused on teaching strategic thinking, resource management, and decision-making skills through engaging gameplay. The game runs in cycles of 8,192 turns, with each turn taking 73.828 seconds, creating a perfect two-week gameplay cycle.
-
-## 🎮 Key Features
-
-- Turn-based strategic gameplay
-- Leadership skill development focus
-- Adaptive AI opponent (NexusMind)
-- Real-world data integration
-- Persistent player progression
-- Educational framework for leadership training
-
-## 🚀 Quick Start
+## Quick Start Guide
 
 ### Prerequisites
-- Docker and Docker Compose
-- Node.js 18+ (for local development)
-- npm or yarn
-- GNU Make (optional, for additional development commands)
+- Docker Desktop
+- Node.js 18 or higher
+- npm 9 or higher
 
-### Getting Started
+### First Time Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-org/srt-8192.git
+git clone https://github.com/yourusername/srt-8192.git
 cd srt-8192
 ```
 
-2. Install dependencies and generate environment files:
+2. Install dependencies:
 ```bash
-# Using npm:
 npm install
+```
+
+3. Build the base service image first:
+```bash
+# Build the base service image that all backend services extend from
+docker build -t srt-8192/base-service:latest ./backend/services/base
+```
+
+4. Generate environment files:
+```bash
 npm run generate:env
-
-# Or using Make:
-make setup
 ```
 
-3. Start the development environment:
+5. Start the development environment:
 ```bash
-# Using npm:
-npm run dev  # Builds and starts
-# or
-npm start    # Starts without rebuilding
-
-# Using Make:
-make dev     # Builds and starts
-# or
-make start   # Starts without rebuilding
+npm run dev
 ```
 
-4. Access the application:
-- Frontend: http://localhost:3000
-- API Gateway: http://localhost:5000
-- Service Health Checks: http://localhost:[5001-5012]/health
+### Development Commands
 
-## 🔧 Development
+- `npm run dev` - Start the development environment
+- `npm run generate:env` - Generate environment files
+- `npm run build` - Build all services
+- `npm run test` - Run tests
+- `npm run lint` - Run linter
 
-### NPM Commands
-Primary development commands:
-```bash
-# Environment setup
-npm run generate:env          # Generate environment files
+### Troubleshooting
 
-# Development
-npm run dev                  # Start dev environment (with build)
-npm start                    # Start without rebuilding
-npm run down                 # Stop all services
-npm run clean               # Clean up (remove volumes)
+If you see "PORT not set" warnings during startup, don't worry! These are expected and the services will use their default ports.
 
-# Testing
-npm test                    # Run all tests
+Common issues:
+1. **Docker build fails**: Make sure Docker Desktop is running
+2. **Missing dependencies**: Run `npm install` again
+3. **Port conflicts**: Check if ports 3000-5012 are available
 
-# Logging
-npm run logs                # View all logs
-```
+For more detailed information, check the docs folder or open an issue on GitHub.
 
-### Make Commands
-Additional development commands available through Make:
+## Documentation
 
-```bash
-# Get command help
-make help                   # Show all available commands
+- [Game Design Bible](docs/Game_Design_Bible.md)
+- [Technical Design Document](docs/Technical_Design_Document.md)
+- [Infrastructure Architecture](docs/Infrastructure_Architecture.md)
 
-# Environment
-make setup                  # Install dependencies and generate env files
-make generate-env          # Generate environment files
-make build                 # Build all services
+## Contributing
 
-# Development
-make start                 # Start development environment
-make stop                  # Stop development environment
-make dev                   # Build and start development environment
-
-# Testing
-make test SERVICE=name     # Test specific service
-make test-all             # Test all services
-make test-integration     # Run integration tests
-make lint-all             # Run linting
-
-# Monitoring
-make health-check         # Check health of all services
-make db-check            # Check database connections
-make logs [SERVICE=name] # View service logs
-make prod-test           # Test production environment
-```
-
-[Previous sections remain the same...]
-
-## 🏗️ Project Structure
-
-\`\`\`
-srt-8192/
-├── frontend/               # React frontend application
-├── backend/               # Microservices backend
-│   ├── services/         # Individual service directories
-│   ├── shared/           # Shared utilities and types
-│   └── scripts/          # Backend maintenance scripts
-├── scripts/              # Project-wide scripts
-├── Makefile             # Additional development commands
-└── docker-compose.yml    # Docker composition config
-\`\`\`
-
-[Previous sections remain the same...]
-
-## 🔍 Monitoring & Debugging
-
-### Health Checks
-Health checks can be performed in several ways:
-```bash
-# Using Make:
-make health-check    # Check all services
-make db-check       # Check databases
-
-# Using curl:
-curl http://localhost:[PORT]/health
-```
-
-### Logs
-```bash
-# Using npm:
-npm run logs
-
-# Using Make:
-make logs                  # All services
-make logs SERVICE=name    # Specific service
-
-# Using Docker directly:
-docker-compose logs [service-name]
-```
-
-[Previous troubleshooting and other sections remain the same...]
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.

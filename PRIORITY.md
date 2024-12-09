@@ -1,50 +1,62 @@
 # Development Priorities
 
-## Immediate (P0)
-1. Environment Configuration
-   - Create standardized .env files for all services
-   - Implement environment validation
-   - Document all required variables
+## Docker Setup Tasks
 
-2. Health Check Implementation
-   - Add /health endpoints to all services
-   - Implement consistent health check pattern
-   - Add proper error handling
+### High Priority
+1. Create missing .env files for all backend services
+   - [ ] game-logic-service/.env
+   - [ ] ai-service/.env
+   - [ ] data-integration/.env
+   - [ ] economy-management/.env
+   - [ ] leaderboard-service/.env
+   - [ ] matchmaking-service/.env
+   - [ ] notification-service/.env
+   - [ ] persistence-service/.env
+   - [ ] rewards-service/.env
+   - [ ] social-service/.env
+   - [ ] tutorial-service/.env
+   - [ ] user-service/.env
 
-3. Build Process
-   - Verify frontend build script
-   - Add environment variable handling
-   - Test build process for all services
+2. Add resource limits to Docker services
+   - [ ] Define CPU limits
+   - [ ] Define memory limits
+   - [ ] Configure swap limits
 
-## High Priority (P1)
-1. Logging & Monitoring
-   - Implement centralized logging
-   - Add resource monitoring
-   - Set up log rotation
+3. Add development volume mounts
+   - [ ] Frontend source code binding
+   - [ ] Backend services source code binding
+   - [ ] Configure hot reloading for development
 
-2. Performance & Resource Management
-   - Add resource limits to containers
-   - Implement proper volume management
-   - Set up backup procedures
+### Medium Priority
+1. Configure logging
+   - [ ] Set up centralized logging
+   - [ ] Define log rotation policies
+   - [ ] Configure log levels for different environments
 
-3. Testing
-   - Add integration tests
-   - Implement API tests
-   - Set up CI/CD pipeline
+2. Monitoring setup
+   - [ ] Configure Prometheus metrics
+   - [ ] Set up Grafana dashboards
+   - [ ] Define alerting rules
 
-## Medium Priority (P2)
-1. Documentation
-   - Update service documentation
-   - Add deployment guides
-   - Document troubleshooting procedures
+3. Development tooling
+   - [ ] Configure debugger attachments
+   - [ ] Set up development database seeds
+   - [ ] Create development data fixtures
 
-2. Security
-   - Implement proper secrets management
-   - Add security scanning
-   - Review access controls
+### Low Priority
+1. CI/CD integration
+   - [ ] Configure build pipelines
+   - [ ] Set up automated testing
+   - [ ] Configure deployment workflows
 
-## Low Priority (P3)
-1. Development Experience
-   - Add development tools
-   - Improve local development setup
-   - Create debugging guides
+2. Documentation
+   - [ ] Document local development setup
+   - [ ] Create service API documentation
+   - [ ] Document deployment procedures
+
+## Next Steps
+1. Create a script to generate all required .env files
+2. Update docker-compose.yml with resource limits
+3. Add development volume mounts to docker-compose.yml
+4. Set up basic logging configuration
+5. Create development database seeds

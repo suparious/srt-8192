@@ -8,13 +8,16 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY tsconfig.json ./
 
-# Install dependencies
+# First, generate package-lock.json if it doesn't exist
+RUN npm install
+
+# Then use npm ci for deterministic builds
 RUN npm ci
 
-# Copy source code
-COPY . .
+# Copy source code and config
+COPY tsconfig.json ./
+COPY src ./src
 
 # Build TypeScript
 RUN npm run build
@@ -29,7 +32,8 @@ WORKDIR /app
 
 # Copy package files and install production dependencies
 COPY package*.json ./
-RUN npm ci --production
+COPY --from=builder /app/package-lock.json ./
+RUN npm ci --omit=dev
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
@@ -44,13 +48,11 @@ USER appuser
 
 # Environment variables
 ENV NODE_ENV=production \
-    PORT=8080 \
-    HEALTH_CHECK_INTERVAL=30s \
-    HEALTH_CHECK_TIMEOUT=5s
+    PORT=8080
 
-# Health check
-HEALTHCHECK --interval=${HEALTH_CHECK_INTERVAL} --timeout=${HEALTH_CHECK_TIMEOUT} \
-    CMD curl -f http://localhost:${PORT}/health || exit 1
+# Health check with fixed intervals - can be overridden by individual services
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
 EXPOSE ${PORT}
 

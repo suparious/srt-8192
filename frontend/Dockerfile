@@ -38,8 +38,8 @@ COPY --from=builder /app/public ./public
 # Copy required root files
 COPY --from=builder /app/next.config.js ./
 
-# Add tini for proper signal handling
-RUN apk add --no-cache tini
+# Add tini and curl for proper signal handling and health checks
+RUN apk add --no-cache tini curl
 
 # Default environment variables
 ENV NODE_ENV=production
@@ -47,6 +47,10 @@ ENV PORT=3000
 
 # Expose the application port
 EXPOSE 3000
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Run the application with tini for proper signal handling
 ENTRYPOINT ["/sbin/tini", "--"]
