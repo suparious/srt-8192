@@ -22,6 +22,10 @@ For context:
 - The application uses MongoDB and Redis for data storage
 We need to carefully review each component's readiness for deployment and identify any potential issues before attempting our first full system startup.
 
+Today, I will pretend to be a Junior developer, following the README.md file for the first time. Your task is to help me launch the game locally for the first time.
+
+Currently, I am having an error after using npm run dev where there are some file permissions and mongo hostname / networking issues, but at least everything seems to be building OK.
+
 #####
 
 Today we are working in the `C:\Users\shaun\repos\srt-8192` directory, focusing on implementing the Game Logic Service - the core component for handling turn-based gameplay mechanics.

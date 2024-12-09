@@ -1,278 +1,126 @@
+import { MongoClient } from 'mongodb';
+import { RedisClientType } from 'redis';
 import { EventEmitter } from 'events';
-import { GameState } from './core/GameState';
-import { GameLoop, CYCLE_DURATION_MS, TOTAL_CYCLES } from './core/GameLoop';
-import { TurnManager } from './core/TurnManager';
-import {
-    PlayerId,
-    GameAction,
-    GamePhase,
-    ServerGameCycle,
-    ActionType,
-    GameRewards
-} from './types';
+import { GameCycleManager } from './core/GameCycleManager';
+import { GameActionRegistry } from './core/actions/GameActionRegistry';
+import { GameAction, GameSession, PlayerState } from './types/GameState';
 
-export class GameService extends EventEmitter {
-    private gameState: GameState;
-    private gameLoop: GameLoop;
-    private turnManager: TurnManager;
-    private isRunning: boolean = false;
+export class GameService {
+  private cycleMgr: GameCycleManager;
+  private actionRegistry: GameActionRegistry;
+  private mongodb: MongoClient;
+  private redis: RedisClientType;
+  private eventEmitter: EventEmitter;
 
-    constructor() {
-        super();
-        this.gameState = new GameState();
-        this.gameLoop = new GameLoop(this.gameState);
-        this.turnManager = new TurnManager(this.gameState);
-        this.initializeEventListeners();
+  constructor(
+    mongodb: MongoClient,
+    redis: RedisClientType,
+    eventEmitter: EventEmitter
+  ) {
+    this.mongodb = mongodb;
+    this.redis = redis;
+    this.eventEmitter = eventEmitter;
+    this.cycleMgr = new GameCycleManager(mongodb, redis, eventEmitter);
+    this.actionRegistry = new GameActionRegistry();
+
+    // Set up event listeners
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners(): void {
+    this.eventEmitter.on('cycleComplete', this.handleCycleComplete.bind(this));
+    this.eventEmitter.on('gameComplete', this.handleGameComplete.bind(this));
+    
+    // Set up daily turn refresh at midnight server time
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const msUntilMidnight = midnight.getTime() - now.getTime();
+
+    setTimeout(() => {
+      this.handleDailyTurnRefresh();
+      // Set up recurring daily refresh
+      setInterval(this.handleDailyTurnRefresh.bind(this), 24 * 60 * 60 * 1000);
+    }, msUntilMidnight);
+  }
+
+  async startGame(playerIds: string[]): Promise<string> {
+    const gameId = await this.cycleMgr.startGame(playerIds);
+    return gameId.toString();
+  }
+
+  async submitAction(action: GameAction): Promise<boolean> {
+    const actionsCollection = this.mongodb.db('game-logic').collection('actions');
+    
+    try {
+      // Get current game state from Redis
+      const gameStateKey = `game:${action.gameId}`;
+      const gameData = await this.redis.hGetAll(gameStateKey);
+      const playerStates = JSON.parse(gameData.playerStates || '{}');
+      const playerState = playerStates[action.playerId];
+
+      if (!playerState) {
+        throw new Error('Player not found in game');
+      }
+
+      // Create action context
+      const context = {
+        gameId: action.gameId,
+        playerId: action.playerId,
+        currentCycle: parseInt(gameData.currentCycle),
+        playerState,
+        gameState: gameData
+      };
+
+      // Validate the action
+      if (!(await this.actionRegistry.validateAction(action, context))) {
+        return false;
+      }
+
+      // Store the action for processing in the next cycle
+      await actionsCollection.insertOne({
+        ...action,
+        status: 'pending',
+        timestamp: new Date()
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error submitting action:', error);
+      return false;
     }
+  }
 
-    private initializeEventListeners(): void {
-        // Game Loop Events
-        this.gameLoop.on('gameLoopStarted', this.handleGameLoopStarted.bind(this));
-        this.gameLoop.on('cycleStarted', this.handleCycleStarted.bind(this));
-        this.gameLoop.on('phaseStarted', this.handlePhaseStarted.bind(this));
-        this.gameLoop.on('gameCompleted', this.handleGameCompleted.bind(this));
+  async getGameState(gameId: string): Promise<GameSession | null> {
+    const gamesCollection = this.mongodb.db('game-logic').collection('games');
+    return await gamesCollection.findOne({ _id: gameId });
+  }
 
-        // Turn Manager Events
-        this.turnManager.on('actionProcessed', this.handleActionProcessed.bind(this));
-        this.turnManager.on('rewardsDistributed', this.handleRewardsDistributed.bind(this));
+  async getPlayerState(gameId: string, playerId: string): Promise<PlayerState | null> {
+    const gameStateKey = `game:${gameId}`;
+    const playerStates = JSON.parse(
+      await this.redis.hGet(gameStateKey, 'playerStates') || '{}'
+    );
+    return playerStates[playerId] || null;
+  }
 
-        // Game State Events
-        this.gameState.on('playerJoined', this.handlePlayerJoined.bind(this));
-        this.gameState.on('playerLeft', this.handlePlayerLeft.bind(this));
-        this.gameState.on('worldStateUpdated', this.handleWorldStateUpdated.bind(this));
-    }
+  private async handleCycleComplete(data: { gameId: string; cycleNumber: number }): Promise<void> {
+    // Update analytics, trigger notifications, etc.
+    console.log(`Cycle ${data.cycleNumber} completed for game ${data.gameId}`);
+  }
 
-    /**
-     * Start the game service
-     */
-    public start(): void {
-        if (this.isRunning) return;
-        
-        console.log(`Starting game service with ${CYCLE_DURATION_MS}ms cycles`);
-        console.log(`Total game duration: ${TOTAL_CYCLES} cycles`);
-        
-        this.isRunning = true;
-        this.gameLoop.start();
-        this.turnManager.startCycle();
-        
-        this.emit('serviceStarted', {
-            timestamp: new Date(),
-            config: {
-                cycleDuration: CYCLE_DURATION_MS,
-                totalCycles: TOTAL_CYCLES
-            }
-        });
-    }
+  private async handleGameComplete(data: { gameId: string }): Promise<void> {
+    // Calculate final scores, update player stats, trigger rewards, etc.
+    console.log(`Game ${data.gameId} completed`);
+  }
 
-    /**
-     * Stop the game service
-     */
-    public stop(): void {
-        if (!this.isRunning) return;
-        
-        this.isRunning = false;
-        this.gameLoop.stop();
-        this.turnManager.stop();
-        
-        this.emit('serviceStopped', {
-            timestamp: new Date(),
-            finalState: this.gameState.getSessionState()
-        });
-    }
+  private async handleDailyTurnRefresh(): Promise<void> {
+    await this.cycleMgr.addDailyTurns();
+    console.log('Daily turn refresh completed');
+  }
 
-    /**
-     * Add a new player to the game
-     */
-    public addPlayer(playerId: PlayerId): void {
-        this.gameState.addPlayer(playerId);
-    }
-
-    /**
-     * Remove a player from the game
-     */
-    public removePlayer(playerId: PlayerId): void {
-        this.gameState.removePlayer(playerId);
-    }
-
-    /**
-     * Queue an action for a player
-     */
-    public queueAction(action: GameAction): void {
-        if (!this.isRunning) return;
-        
-        if (this.validateAction(action)) {
-            this.gameState.queueAction(action);
-        } else {
-            this.emit('actionRejected', {
-                action,
-                reason: 'Invalid action or insufficient resources',
-                timestamp: new Date()
-            });
-        }
-    }
-
-    /**
-     * Get the current game cycle information
-     */
-    public getCurrentCycle(): ServerGameCycle {
-        return this.gameLoop.getCurrentCycle();
-    }
-
-    /**
-     * Get the current game phase
-     */
-    public getCurrentPhase(): GamePhase {
-        return this.getCurrentCycle().currentPhase;
-    }
-
-    /**
-     * Validate a player action
-     */
-    private validateAction(action: GameAction): boolean {
-        // Check if action type is valid for current phase
-        const currentPhase = this.getCurrentPhase();
-        if (!this.turnManager.isActionAllowed(action.type)) {
-            return false;
-        }
-
-        // Check if player exists and has enough resources
-        const session = this.gameState.getSessionState();
-        const player = session.players.get(action.playerId);
-        if (!player) return false;
-
-        // Validate resources if action requires them
-        if (action.resources) {
-            for (const [resource, amount] of Object.entries(action.resources)) {
-                if (player.resources[resource] < amount) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Event Handlers
-     */
-    private handleGameLoopStarted(cycle: ServerGameCycle): void {
-        console.log('Game loop started', {
-            timestamp: new Date(),
-            cycle: cycle.cycleId
-        });
-    }
-
-    private handleCycleStarted(data: { cycle: ServerGameCycle }): void {
-        console.log('New cycle started', {
-            cycleId: data.cycle.cycleId,
-            timestamp: new Date()
-        });
-    }
-
-    private handlePhaseStarted(data: { phase: GamePhase, duration: number }): void {
-        console.log('Phase started', {
-            phase: data.phase,
-            duration: data.duration,
-            timestamp: new Date()
-        });
-    }
-
-    private handleGameCompleted(finalCycle: ServerGameCycle): void {
-        console.log('Game completed', {
-            finalCycle: finalCycle.cycleId,
-            timestamp: new Date()
-        });
-        this.stop();
-    }
-
-    private handleActionProcessed(result: { action: GameAction, success: boolean }): void {
-        console.log('Action processed', {
-            actionId: result.action.id,
-            success: result.success,
-            timestamp: new Date()
-        });
-    }
-
-    private handleRewardsDistributed(data: { playerId: PlayerId, rewards: GameRewards }): void {
-        console.log('Rewards distributed', {
-            playerId: data.playerId,
-            rewards: data.rewards,
-            timestamp: new Date()
-        });
-    }
-
-    private handlePlayerJoined(data: { playerId: PlayerId }): void {
-        console.log('Player joined', {
-            playerId: data.playerId,
-            timestamp: new Date()
-        });
-    }
-
-    private handlePlayerLeft(data: { playerId: PlayerId }): void {
-        console.log('Player left', {
-            playerId: data.playerId,
-            timestamp: new Date()
-        });
-    }
-
-    private handleWorldStateUpdated(worldState: any): void {
-        console.log('World state updated', {
-            phase: worldState.phase,
-            cycle: worldState.cycle,
-            timestamp: new Date()
-        });
-    }
-
-    /**
-     * Helper methods
-     */
-    public getPlayerState(playerId: PlayerId): any {
-        const session = this.gameState.getSessionState();
-        return session.players.get(playerId);
-    }
-
-    public getWorldState(): any {
-        const session = this.gameState.getSessionState();
-        return session.worldState;
-    }
-
-    public getAIState(): any {
-        const session = this.gameState.getSessionState();
-        return session.aiState;
-    }
-
-    /**
-     * Debug and monitoring methods
-     */
-    public getServiceStatus(): any {
-        return {
-            isRunning: this.isRunning,
-            currentCycle: this.getCurrentCycle(),
-            playerCount: this.gameState.getSessionState().players.size,
-            queuedActions: this.gameState.getSessionState().actionQueue.length,
-            timestamp: new Date()
-        };
-    }
-
-    public getDebugInfo(): any {
-        const session = this.gameState.getSessionState();
-        return {
-            service: this.getServiceStatus(),
-            gameLoop: {
-                currentCycle: this.getCurrentCycle(),
-                currentPhase: this.getCurrentPhase()
-            },
-            turnManager: {
-                phaseConfig: this.turnManager.getCurrentPhaseConfig()
-            },
-            gameState: {
-                playerCount: session.players.size,
-                actionQueueLength: session.actionQueue.length,
-                worldState: session.worldState,
-                aiState: session.aiState
-            }
-        };
-    }
+  public async shutdown(): Promise<void> {
+    // Cleanup code here (stop game cycles, save state, etc.)
+    console.log('Game service shutting down...');
+  }
 }
-
-export default GameService;
