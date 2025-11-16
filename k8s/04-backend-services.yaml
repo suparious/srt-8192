@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: game-logic
-        image: suparious/srt-8192-game-logic-service:latest
+        image: ghcr.io/solidrust/srt-8192-game-logic-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -102,7 +102,7 @@ spec:
     spec:
       containers:
       - name: ai-service
-        image: suparious/srt-8192-ai-service:latest
+        image: ghcr.io/solidrust/srt-8192-ai-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -180,7 +180,7 @@ spec:
     spec:
       containers:
       - name: data-integration
-        image: suparious/srt-8192-data-integration:latest
+        image: ghcr.io/solidrust/srt-8192-data-integration:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -258,7 +258,7 @@ spec:
     spec:
       containers:
       - name: economy
-        image: suparious/srt-8192-economy-management:latest
+        image: ghcr.io/solidrust/srt-8192-economy-management:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -336,7 +336,7 @@ spec:
     spec:
       containers:
       - name: leaderboard
-        image: suparious/srt-8192-leaderboard-service:latest
+        image: ghcr.io/solidrust/srt-8192-leaderboard-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -414,7 +414,7 @@ spec:
     spec:
       containers:
       - name: matchmaking
-        image: suparious/srt-8192-matchmaking-service:latest
+        image: ghcr.io/solidrust/srt-8192-matchmaking-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -492,7 +492,7 @@ spec:
     spec:
       containers:
       - name: notifications
-        image: suparious/srt-8192-notification-service:latest
+        image: ghcr.io/solidrust/srt-8192-notification-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -570,7 +570,7 @@ spec:
     spec:
       containers:
       - name: persistence
-        image: suparious/srt-8192-persistence-service:latest
+        image: ghcr.io/solidrust/srt-8192-persistence-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -648,7 +648,7 @@ spec:
     spec:
       containers:
       - name: rewards
-        image: suparious/srt-8192-rewards-service:latest
+        image: ghcr.io/solidrust/srt-8192-rewards-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -726,7 +726,7 @@ spec:
     spec:
       containers:
       - name: social
-        image: suparious/srt-8192-social-service:latest
+        image: ghcr.io/solidrust/srt-8192-social-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -804,7 +804,7 @@ spec:
     spec:
       containers:
       - name: tutorial
-        image: suparious/srt-8192-tutorial-service:latest
+        image: ghcr.io/solidrust/srt-8192-tutorial-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -882,7 +882,7 @@ spec:
     spec:
       containers:
       - name: user
-        image: suparious/srt-8192-user-service:latest
+        image: ghcr.io/solidrust/srt-8192-user-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

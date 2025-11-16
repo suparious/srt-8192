@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: suparious/srt-8192-api-gateway:latest
+        image: ghcr.io/solidrust/srt-8192-api-gateway:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 5000

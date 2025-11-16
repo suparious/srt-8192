@@ -9,13 +9,13 @@
     - Backend microservices (12+ services)
     - Frontend React application
 
-    Supports cross-platform paths (WSL2 + Windows) and Docker Hub push.
+    Supports cross-platform paths (WSL2 + Windows) and GitHub Container Registry push.
 
 .PARAMETER Push
-    Push images to Docker Hub after building
+    Push images to GitHub Container Registry after building
 
 .PARAMETER Login
-    Interactive Docker Hub login before build
+    Interactive GitHub Container Registry login before build
 
 .PARAMETER SkipBase
     Skip building the base service image (use existing)
@@ -29,7 +29,7 @@
 
 .EXAMPLE
     .\build-and-push.ps1 -Login -Push
-    Login to Docker Hub, build and push all images
+    Login to GitHub Container Registry, build and push all images
 
 .EXAMPLE
     .\build-and-push.ps1 -ServiceOnly frontend
@@ -54,7 +54,7 @@ param(
 #region Configuration
 $ErrorActionPreference = "Stop"
 
-# Docker Hub configuration
+# GitHub Container Registry configuration
 $DOCKER_USER = "suparious"
 $IMAGE_PREFIX = "srt-8192"
 $IMAGE_TAG = "latest"
@@ -110,10 +110,10 @@ function Test-DockerRunning {
 }
 
 function Invoke-DockerLogin {
-    Write-Header "Docker Hub Login"
+    Write-Header "GitHub Container Registry Login"
     try {
-        docker login
-        Write-Success "Logged in to Docker Hub"
+        docker login ghcr.io
+        Write-Success "Logged in to GitHub Container Registry"
     } catch {
         Write-Error "Docker login failed: $($_.Exception.Message)"
         exit 1

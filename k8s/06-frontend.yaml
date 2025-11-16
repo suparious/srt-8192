@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: suparious/srt-8192-frontend:latest
+        image: ghcr.io/solidrust/srt-8192-frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
